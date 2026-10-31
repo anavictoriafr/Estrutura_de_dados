@@ -10,7 +10,7 @@ struct elemento {
 };
 typedef struct elemento Elem;
 
-Lista* criarlista(){
+Lista* cria_lista(){
     Lista* li = malloc(sizeof(Lista));
     if(li != NULL)
         *li = NULL;
@@ -30,9 +30,9 @@ void libera_lista(Lista* li){
 }
 
 int tamanho_lista(Lista* li){
-    if(li == NULL) return 0;
+    if(li == NULL || *li == NULL) return 0;
     Elem *no = *li;
-    int cont = 1;
+    int cont = 0;
     while(no != NULL){
         cont++;
         no = no->prox;
@@ -162,30 +162,6 @@ int remove_lista_final(Lista* li){
     return 1;
 }
 
-int remove_lista(Lista* li, int mat){
-    if(li == NULL || *li == NULL) return 0;
-    Elem *no = *li;
-    while(no != NULL && no->dados.matricula != mat){
-        no = no->prox;
-    }
-    if(no == NULL) return 0; // a matricula nao foi encontrada
-    if(no == *li){
-        if(no->prox != NULL){
-        no->prox->ant = NULL;
-        }
-        *li = no->prox;
-    }
-    else{
-        no->ant->prox = no->prox;
-        
-        if(no->prox != NULL){
-        no->prox->ant = no->ant;
-        }
-    }
-    free(no);
-    return 1;
-}
-
 int busca_lista_pos(Lista* li, int pos, struct aluno *al){
     if(li == NULL || *li == NULL || pos <= 0) return 0;
     Elem *no = *li;
@@ -261,10 +237,10 @@ int remove_lista(Lista* li, int mat){
         no = no->prox;
     if(no == NULL) return 0; // caso a matricula nao seja encontrada
     if(no == *li) { // caso o elemnto procurado seja o primeiro da lista
-        *li = (*li)->prox;
         if(no->prox != NULL){
             no->prox->ant = NULL;
         }
+        *li = (*li)->prox;
     }
     else{
         no->ant->prox = no->prox;
@@ -308,18 +284,18 @@ int remove_lista_pos(Lista* li, int pos){
 int move_para_inicio(Lista* li, int mat){
     if(li == NULL || *li == NULL) return 0;
     Elem *no = *li;
-    while(no != NULL && no->dados.matricula != mat){
+    while(no != NULL && no->dados.matricula != mat){ // procurando elemento que possui essa matricula
         no = no->prox;
     }
-    if(no == NULL) return 0;
-    if(no->ant == NULL){
+    if(no == NULL) return 0; // se a matricula nao existir
+    if(no->ant == NULL){ // se ele ja for o primeiro
         return 1;
     }
     no->ant->prox = no->prox;
-    if(no->prox != NULL){
+    if(no->prox != NULL){ // se ele nao for o ultimo
         no->prox->ant = no->ant;
     }
-    no->prox = (*li);
+    no->prox = (*li); // transformando em primeiro elemento 
     (*li)->ant = no;
     no->ant = NULL;
     *li = no;
@@ -333,22 +309,22 @@ int remove_todos(Lista* li, int mat){
     Elem *no = *li, *aux;
     int cont = 0;
     do{
-        if(no->dados.matricula == mat){
-           if(no == *li){
+        if(no->dados.matricula == mat){ // procurando elementos que tenham essa matricula
+           if(no == *li){ // se for o primeiro
              (*li) = no->prox;
-             if(no->prox != NULL){
+             if(no->prox != NULL){ // caso nao seja o unico elemento
                 no->prox->ant = NULL;
              }
            }
            else{
             no->ant->prox = no->prox;
-            if(no->prox != NULL){
+            if(no->prox != NULL){ // se nao for o ultimo elemento
                 no->prox->ant = no->ant;
             }
            }
            aux = no;
            no = no->prox;
-           cont++;
+           cont++; // realizando a contagem de elementos removidos
            free(aux);
         }
         else{
@@ -359,15 +335,17 @@ int remove_todos(Lista* li, int mat){
     return cont;
 }
 
+// Questao 7:
+
 void inverte_lista(Lista* li){
     if(li == NULL || *li == NULL) return;
     Elem *no = *li;
-    while(no->prox != NULL){
+    while(no->prox != NULL){ // procura o ultimo elemento
         no = no->prox;
     }
     Elem *aux;
-    (*li) = no;
-    while(no != NULL){
+    (*li) = no; // faz o ponteiro de lista apontar para o ultimo elemento
+    while(no != NULL){ // inverte os enderecos guardados em ant e prox para inverter a lista
         aux = no->ant;
         no->ant = no->prox;
         no->prox = aux;
@@ -375,14 +353,18 @@ void inverte_lista(Lista* li){
     }
 }
 
+// Questao 8:
+// Como a funcao tem dois loops seu custo e 2n, ou seja, O(n). A mesma estrategia que usei nessa questão nao se aplica a listas simplesmente encadeadas
+// pois elas nao possuem um campo ant, impedindo que eu percorra ela apartir do fim da mesma forma que em uma duplamente encadeada.
+
 int eh_palindromo(Lista* li){
     if(li == NULL) return 0;
-    if(*li == NULL) return 1;
+    if(*li == NULL) return 1; 
     Elem *no = *li, *aux = *li;
-    while(aux->prox != NULL){
+    while(aux->prox != NULL){ // encontrando o ultimo elemento
         aux = aux->prox;
     }
-    while(aux != NULL && no != NULL){
+    while(aux != NULL && no != NULL){ // dois ponteiros percorrendo a lista de extremidades opostas conferindo os elementos 
         if(aux->dados.matricula != no->dados.matricula){
             return 0;
         }
