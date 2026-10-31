@@ -302,3 +302,92 @@ int remove_lista_pos(Lista* li, int pos){
     free(no);
     return 1;
 }
+
+// Questao 5:
+
+int move_para_inicio(Lista* li, int mat){
+    if(li == NULL || *li == NULL) return 0;
+    Elem *no = *li;
+    while(no != NULL && no->dados.matricula != mat){
+        no = no->prox;
+    }
+    if(no == NULL) return 0;
+    if(no->ant == NULL){
+        return 1;
+    }
+    no->ant->prox = no->prox;
+    if(no->prox != NULL){
+        no->prox->ant = no->ant;
+    }
+    no->prox = (*li);
+    (*li)->ant = no;
+    no->ant = NULL;
+    *li = no;
+    return 1;
+}
+
+// Questao 6:
+
+int remove_todos(Lista* li, int mat){
+    if(li == NULL || *li == NULL) return 0;
+    Elem *no = *li, *aux;
+    int cont = 0;
+    do{
+        if(no->dados.matricula == mat){
+           if(no == *li){
+             (*li) = no->prox;
+             if(no->prox != NULL){
+                no->prox->ant = NULL;
+             }
+           }
+           else{
+            no->ant->prox = no->prox;
+            if(no->prox != NULL){
+                no->prox->ant = no->ant;
+            }
+           }
+           aux = no;
+           no = no->prox;
+           cont++;
+           free(aux);
+        }
+        else{
+            no = no->prox;
+        }
+    }while(no != NULL);
+
+    return cont;
+}
+
+void inverte_lista(Lista* li){
+    if(li == NULL || *li == NULL) return;
+    Elem *no = *li;
+    while(no->prox != NULL){
+        no = no->prox;
+    }
+    Elem *aux;
+    (*li) = no;
+    while(no != NULL){
+        aux = no->ant;
+        no->ant = no->prox;
+        no->prox = aux;
+        no = no->prox;
+    }
+}
+
+int eh_palindromo(Lista* li){
+    if(li == NULL) return 0;
+    if(*li == NULL) return 1;
+    Elem *no = *li, *aux = *li;
+    while(aux->prox != NULL){
+        aux = aux->prox;
+    }
+    while(aux != NULL && no != NULL){
+        if(aux->dados.matricula != no->dados.matricula){
+            return 0;
+        }
+        no = no->prox;
+        aux = aux->ant;
+    }
+    return 1;
+}
